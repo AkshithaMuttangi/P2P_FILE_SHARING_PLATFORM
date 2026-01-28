@@ -12,7 +12,7 @@ function App() {
           element={
             <>
               <SessionCreate />
-              {/* <P2PNetwork /> */}
+              <P2PNetwork />
             </>
           }/>
           <Route path="/temp"

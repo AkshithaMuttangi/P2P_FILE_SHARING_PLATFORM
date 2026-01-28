@@ -32,6 +32,9 @@ export function startSocket(server) {
             console.log("received:", data);
         });
 
+        socket.on("disconnect", (reason) => {
+            console.log("WS disconnected:", reason);
+        });
     })
 }
 
