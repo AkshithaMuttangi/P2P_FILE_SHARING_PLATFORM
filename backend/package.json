@@ -9,5 +9,10 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs"
+  "type": "module",
+  "dependencies": {
+    "http": "^0.0.1-security",
+    "nanoid": "^5.1.6",
+    "socket.io": "^4.8.3"
+  }
 }

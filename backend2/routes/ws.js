@@ -34,7 +34,7 @@ export function startWS(server) {
         });
 
 
-        ws.send()
+        // ws.send()
 
         ws.on("close", () => {
             console.log("WS disconnected");

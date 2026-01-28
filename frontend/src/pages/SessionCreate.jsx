@@ -2,24 +2,54 @@ import React, { useState, useEffect, useRef } from "react";
 import "./SessionCreate.css";
 import dummyQR from "../assets/dummyqr200x200.png";
 import { QRCodeSVG } from "qrcode.react";
+import { io } from "socket.io-client";
 
 
 const SessionCreate = () => {
-  const ws = useRef(null); // the main websocket
+  const ws = useRef(null); //imp
   const [sessionUrl, setSessionUrl] = useState(null);
 
-  useEffect(() => {
-    ws.current = new WebSocket("ws://localhost:8080/ws/create");
-    ws.current.onopen = () => console.log("WS connected");
 
-    ws.current.onmessage = (e) => {
-      const data = JSON.parse(e.data);
-      if (data.type === "connected") setSessionUrl(data.url);
-    };
-    return () => {
-      ws.current.close();
-    };
-  }, []);
+useEffect(() => {
+  ws.current = io("http://localhost:8080", {
+    path: "/ws/create",
+  });
+  // ws.current.onopen = () => console.log("WS connected");
+  ws.current.on("connect",()=>{
+    console.log("WS connected");
+
+    ws.current.emit("msgg",{
+      message: "WebSocket /ws/create is alive",
+    })
+
+  })
+
+  // ws.current.onmessage = (e) => {
+  //   const data = JSON.parse(e.data);
+  //   if (data.type === "connected") setSessionUrl(data.url);
+  // };
+  ws.current.onAny((event,data)=>{
+      if (event === "connected&url") {
+        setSessionUrl(data.url);
+      }
+  })
+
+  // ws.current.onopen = () => {
+  //   console.log("WS connected");
+
+  //   ws.current.send(
+  //     JSON.stringify({
+  //       type: "connected",
+  //       message: "WebSocket /ws/create is alive",
+  //     }),
+  //   );
+  // };
+
+
+  return () => {
+    ws.current.disconnect();
+  };
+}, []);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(sessionUrl);
