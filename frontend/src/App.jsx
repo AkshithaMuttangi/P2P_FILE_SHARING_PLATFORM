@@ -11,25 +11,13 @@ function App() {
       {/* P2PNetwork is outside Routes to ensure it remains 
          rendered as the persistent background across all pages 
       */}
-      <P2PNetwork />
-      
+      {/* <P2PNetwork /> */}
+
       <Routes>
-        <Route
-          path="/"
-          element={<SessionCreate />}
-        />
-        <Route
-          path="/transfer"
-          element={<FileTransfer />}
-        />
-        <Route
-          path="/:sessid"
-          element={<LoadingPage />}
-        />
-        {/* <Route
-          path="/sessid"
-          element={<SessionCreate />}
-        /> */}
+        <Route path="/" element={<SessionCreate />} />
+        <Route path="/transfer" element={<FileTransfer />} />
+        <Route path="/:sessid" element={<LoadingPage />} />
+        {/* <Route path="/sessid" element={<SessionCreate />} /> */}
       </Routes>
     </BrowserRouter>
   );

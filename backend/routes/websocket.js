@@ -25,7 +25,7 @@ export function startSocket(server) {
 
         console.log("socket connected:", socket.id);
 
-        socket.on("createroom", () => {
+        socket.on("createroom", (data) => {
             const roomid = generateSessionId();
             socket.join(roomid);
             socket.roomId = roomid;
@@ -60,6 +60,20 @@ export function startSocket(server) {
                 sessionid: socket.roomId
             });
         });
+
+        socket.on("sdp-offer", ({ roomid, sdpoffer }) => {
+            socket.to(roomid).emit("sdp-offer", { sdpoffer });
+            console.log("Relaying Offer for room:", roomid);
+        });
+        
+        socket.on("sdp-answer", ({ roomid,sdpanswer }) => {
+            socket.to(socket.roomId).emit("sdp-answer", { sdpanswer });
+            console.log("Relaying Answer for room:", roomid);
+        });
+
+        // socket.on("ice-candidate", ({ roomid, candidate }) => {
+        //     socket.to(roomid).emit("ice-candidate", { candidate });
+        // });
 
         socket.on("disconnect", (reason) => {
             console.log("WS disconnected:", reason);

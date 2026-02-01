@@ -2,81 +2,66 @@ import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import "./LoadingPage.css";
 import { io } from "socket.io-client";
+import { socket, pc } from "../webrtc";
 
 const LoadingPage = () => {
   const [statusText, setStatusText] = useState("Initializing handshake...");
-  const STEPS = {
-    ICE: "Resolving ICE candidates...",
-    KEYS: "Verifying encryption keys...",
-    TUNNEL: "Establishing secure tunnel...",
-    SYNC: "Synchronizing state...",
-    DONE: "Connection established",
-  };
-  const pc = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-  });
 
-  let dc;
-
-  ////////////////////////////
-  //**************************ws.current ===> oka socket*****************************
-  //////////////////////
-  const updateStatus = (step) => {
-    setStatusText(STEPS[step]);
-  };
 
   const { sessid } = useParams();
-  const ws = useRef(null);
-
   // Simulation of connection steps
   useEffect(() => {
     if (!sessid) {
       return;
     }
 
-    ws.current = io("http://localhost:8080", {
-      path: "/ws",
-    });
+    const handleconnect = () => {
+      console.log("WS connected joining room:", sessid);
+      socket.emit("joinroom", { roomid: sessid });
+    };
 
-    ws.current.on("connect", () => {
-      console.log("WS connected");
+    const handlesdpoffer = async (data) => {
+      console.log("sdp offer:", data.sdpoffer);
 
-      ws.current.emit(
-        "joinroom",
-        {
-          roomid: sessid,
-        },
-        console.log(sessid),
-      );
-    });
+      if (pc.signalingState !== "stable") {
+        //  *** VERY IMP ***
+        console.warn("Connection not stable, ignoring duplicate offer");
+        return;
+      }
 
-    ws.current.on("sdp-offer", async (data) => {
-      const offer = data.sdpoffer;
+      await pc.setRemoteDescription(data.sdpoffer);
 
-      await pc.setRemoteDescription(offer);
-
-      if (offer.type === "offer") {
+      if (data.sdpoffer.type === "offer") {
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
-        // console.log("Answer created");
+        console.log("Answer created and set local");
       }
-      // else {
-      //   log("Remote description set");
-      // }
-    });
+    };
 
     pc.onicecandidate = (e) => {
-      if (e.candidate === null) {
-        ws.current.to(roomid).emit("sdp-answer", {
+      if (e.candidate === null && sessid) {
+        socket.emit("sdp-answer", {
+          roomid: sessid,
           sdpanswer: pc.localDescription,
         });
+        setStatusText("Sending handshake...");
       }
     };
 
+    // socket.on("connect", () => {});
+    if (socket.connected) {
+      handleconnect();
+    }
+
+    socket.on("sdp-offer", handlesdpoffer);
+
     return () => {
-      ws.current.disconnect();
+      // socket.disconnect();
+      socket.off("connect", handleconnect);
+      socket.off("sdp-offer", handlesdpoffer);
+      pc.onicecandidate = null;
     };
-  }, []);
+  }, [sessid]);
 
   return (
     <div className="loading-page-wrapper">

@@ -2,83 +2,113 @@ import React, { useState, useEffect, useRef } from "react";
 import "./SessionCreate.css";
 import dummyQR from "../assets/dummyqr200x200.png";
 import { QRCodeSVG } from "qrcode.react";
-import { io } from "socket.io-client";
+// import { io } from "socket.io-client";
+import { socket, pc, dc } from "../webrtc";
+import { setDC } from "../webrtc";
 
 const SessionCreate = () => {
-  const ws = useRef(null); //imp
   const [sessionUrl, setSessionUrl] = useState(null);
   const [roomid, setroomid] = useState(null);
-  const pc = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-  });
-
-  let dc;
 
   useEffect(() => {
-    ws.current = io("http://localhost:8080", {
-      path: "/ws",
-    });
-
-    ws.current.on("connect", () => {
+    const handleconnect = () => {
       console.log("WS connected");
+      socket.emit("msgg", { message: "WebSocket connected" });
+      socket.emit("createroom", { message: "room joined" });
+    };
 
-      ws.current.emit("msgg", {
-        message: "WebSocket connected",
-      });
+    const handleurl = (data) => {
+      setSessionUrl(data.url);
+      setroomid(data.roomID);
+      console.log("url has been set");
+    };
 
-      ws.current.emit("createroom", {
-        message: "room joined",
-      });
-    });
+    const handlepeerconnected = async (data) => {
+      console.log("Peer connected via socket");
 
-    ws.current.onAny((event, data) => {
-      if (event === "connected&url") {
-        setSessionUrl(data.url);
-        setroomid(data.roomID);
-      }
-    });
-    ws.current.on("msgg", (data) => {
-      console.log(data);
-    });
-
-    ws.current.on("peerconnected", async (data) => {
-      dc = pc.createDataChannel("data");
+      // Prevent creating duplicate channels if one already exists
+      const channel = pc.createDataChannel("data");
+      setDC(channel);
+      channel.onopen = () => console.log("Datachannel opened");
 
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
-      log("Offer created");
+      console.log("Offer created");
+    };
 
-      dc.onopen = () => log("DataChannel OPEN"); //after the datachannell is opened
+    const handlesdpanswer = async (data) => {
+      console.log("SDP Answer:", data.sdpanswer);
+      await pc.setRemoteDescription(data.sdpanswer);
+      console.log("remote description set  dc opened");
+    };
 
-      // dc.onmessage = (e) => {
-      //   log("Received file");
-
-      //   const blob = new Blob([e.data]); //e.data => arraybuffer -> not readable -> need to be dpwnloaded
-      //   const url = URL.createObjectURL(blob);
-      //   const a = document.createElement("a");
-      //   a.href = url;
-      //   a.download = "received_filee";
-      //   a.click();
-      //   URL.revokeObjectURL(url);
-      // };
-    });
-
-    // ICE gathering finished → show SDP
     pc.onicecandidate = (e) => {
-      if (e.candidate === null) {
-        ws.current.to(roomid).emit("sdp-offer", {
+      if (e.candidate === null && roomid) {
+        socket.emit("sdp-offer", {
+          roomid,
           sdpoffer: pc.localDescription,
         });
       }
     };
 
-    ws.current.on("sdp-answer", async (data) => {
-      await pc.setRemoteDescription(data.sdpanswer);
+    if (socket.connected && !roomid) {
+      handleconnect();
+    }
+
+    socket.on("connected&url", handleurl);
+    socket.on("peerconnected", handlepeerconnected);
+    socket.on("sdp-answer", handlesdpanswer);
+
+    socket.on("msgg", (data) => {
+      console.log(data);
     });
-    return () => {
-      ws.current.disconnect();
+
+    // socket.on("peerconnected", async (data) => {
+    //   // dc = pc.createDataChannel("data");
+    //   const channel = pc.createDataChannel("data");
+    //   setDC(channel);
+
+    //   const offer = await pc.createOffer();
+    //   await pc.setLocalDescription(offer);
+
+    //   dc.onopen = () => log("DataChannel OPEN"); //after the datachannell is opened
+
+    //   // dc.onmessage = (e) => {
+    //   //   log("Received file");
+
+    //   //   const blob = new Blob([e.data]); //e.data => arraybuffer -> not readable -> need to be dpwnloaded
+    //   //   const url = URL.createObjectURL(blob);
+    //   //   const a = document.createElement("a");
+    //   //   a.href = url;
+    //   //   a.download = "received_filee";
+    //   //   a.click();
+    //   //   URL.revokeObjectURL(url);
+    //   // };
+    // });
+
+    // ICE gathering finished → show SDP
+
+    pc.onicecandidate = (e) => {
+      if (e.candidate === null && roomid) {
+        socket.emit("sdp-offer", {
+          roomid,
+          sdpoffer: pc.localDescription,
+        });
+      }
     };
-  }, []);
+
+    // socket.on("sdp-answer", async (data) => {
+    //   await pc.setRemoteDescription(data.sdpanswer);
+    // });
+
+    return () => {
+      //strick mode ki mk
+      socket.off("connected&url", handleurl);
+      socket.off("peerconnected", handlepeerconnected);
+      socket.off("sdp-answer", handlesdpanswer);
+      pc.onicecandidate = null;
+    };
+  }, [roomid]);
 
   const [isCopied, setIsCopied] = useState(false);
   const copyToClipboard = () => {
@@ -132,7 +162,7 @@ const SessionCreate = () => {
               <LockIcon className="icon-lock" />
               <input
                 type="text"
-                value={sessionUrl}
+                value={sessionUrl ?? ""}
                 readOnly
                 className="link-input"
                 placeholder="Generating link..."
