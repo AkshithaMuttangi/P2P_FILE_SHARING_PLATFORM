@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import "./FileTransfer.css";
 import { socket, pc, dc,cleanupWebRTC } from "../webrtc";
+import "../Styles/FileTransfer.css";
 import { useNavigate } from "react-router-dom";
 
 const FileTransfer = () => {
