@@ -1,219 +1,126 @@
-# P2P_FILE_SHARING_PLATFORM
+# VELOSYNC - Secure P2P File Sharing
 
+**VELOSYNC** is a fast, secure, and decentralized peer-to-peer (P2P) file-sharing application. It establishes a direct connection between users using **WebRTC**, ensuring that files are transferred directly from device to device without ever being stored on a central server.
 
-# 🔐 P2P Encrypted File Sharing (EasyShare)
+##  Key Features
 
-A fast, secure, and decentralized **peer-to-peer (P2P) file sharing web application** built with **WebRTC**.  
-Files are transferred **directly between users**, end-to-end encrypted, without being stored on any central server.
+  * **Direct P2P Transfer**: Uses WebRTC DataChannels for peer-to-peer file transfer. Data goes directly between users, not through the server.
+  * **Secure Signaling**:
+      * **Rate Limiting**: Custom IP-based rate limiting on the signaling server to prevent abuse.
+      * **IP Hashing**: User IP addresses are hashed with a daily salt for privacy.
+  * **Easy Session Sharing**:
+      * Generate a unique Session ID.
+      * Share via **QR Code** or direct **URL Link**.
+      * Integrated sharing buttons for WhatsApp and Email.
+  * **Modern UI**: Built with React and Vite for a fast, responsive experience.
 
----
-
-## 📌 Overview
-
-EasyShare enables users to securely send and receive files directly from one browser to another using **WebRTC DataChannels**.  
-Unlike traditional cloud-based solutions, files never touch a storage server — ensuring **privacy, speed, and security**.
-
-Key highlights:
-- Direct P2P file transfer
-- End-to-end encryption
-- Session-based sharing via link or QR code
-- Chunked file transfer for reliability
-- Bi-directional sharing in a single session
-
----
-
-## ✨ Features (MVP)
-
-### 🔗 Direct Peer-to-Peer Sharing
-- Files flow directly from **User A → User B**
-- No server-side file storage
-
-### 🔒 End-to-End Encryption
-- Files encrypted on the sender’s device
-- Decrypted only on the receiver’s device
-- Uses **Web Crypto API / CryptoJS**
-- Protects against eavesdropping and MITM attacks
-
-### 🔑 Session via Link or QR Code
-- Backend generates a **one-time session ID**
-- Shared via:
-  - URL
-  - QR Code
-- Receiver opens the link to join the session
-
-### 📦 File Chunking
-- Large files are split into small chunks
-- Improves transfer reliability and performance
-
-### 🔄 Bi-Directional Sharing
-- Both peers can **send and receive files simultaneously**
-- Single WebRTC session supports two-way transfer
-
-### 📊 Transfer Progress & Activity Log
-- Real-time upload/download progress
-- Activity log of sent and received files
-
-### 🖥️ Multi-Device Support
-- Works on:
-  - Desktop
-  - Laptop
-  - Mobile browsers
-
-### 🎨 Basic UI
-- File selection
-- Drag & drop support
-- File metadata display
-- Clear send/receive panels
-
----
-
-## 🚀 Optional / Future Features
-
-- Unordered data channels for faster preview
-- ICE reconnection / tickle ICE on network change
-- Built-in chat
-- Group file sharing sessions
-- BLE / Nearby Share integration
-
----
-
-## 🔄 Technical Flow
-
-### 1️⃣ Session Creation
-1. User A visits the website
-2. Browser opens a signaling WebSocket
-3. ICE candidates gathered via STUN
-4. User A requests a new session
-5. Server generates a **session ID**
-6. User A receives encrypted session ID
-7. User A shares link or QR code
-
----
-
-### 2️⃣ Session Join
-1. User B opens shared link / scans QR
-2. Browser opens signaling socket
-3. ICE candidates gathered via STUN
-4. User B sends SDP Offer + ICE candidates
-
----
-
-### 3️⃣ Signaling Exchange
-- Signaling server relays:
-  - SDP Offer / Answer
-  - ICE candidates
-- **No file data passes through the server**
-
----
-
-### 4️⃣ Connection Establishment
-- ICE connectivity checks performed
-- Best candidate pair selected:
-  - Direct
-  - STUN
-  - TURN (fallback)
-
----
-
-### 5️⃣ Direct P2P Transfer
-- WebRTC DataChannel established
-- Encrypted chunks sent directly
-- Signaling server no longer involved
-
----
-
-## 🧠 WebRTC Connection Flow
-
-### STEP 1: Signaling (Coordination)
-
-Peer A ── SDP / ICE ──> Signaling Server ──> Peer B  
-Peer B ── SDP / ICE ──> Signaling Server ──> Peer A
-
-
-### STEP 2: Network Discovery (STUN)
-
-Peer ── STUN Server ──> Public IP : Port
-
-
-### STEP 3: ICE Candidate Selection
-- Host candidates
-- STUN (srflx)
-- TURN relay (fallback)
-
-### STEP 4: P2P Data Transfer
-
-Peer A ======================= Peer B
-Encrypted UDP packets
-
-
----
-
-## 🏗️ Technical Architecture
+##  Tech Stack
 
 ### Frontend
-- **React.js**
-- **Tailwind CSS**
-- **WebRTC** (DataChannels)
-- **Web Crypto API / CryptoJS**
-- **QR Code library**
+
+  * **Framework**: React (v19) with Vite
+  * **Styling**: CSS (Custom animations, Glow effects)
+  * **Connectivity**: `socket.io-client`, native `RTCPeerConnection`
+  * **Utilities**: `qrcode.react` (for session QR codes), `uuid`
 
 ### Backend (Signaling Server)
-- **Node.js**
-- **Express.js**
-- **WebSocket**
-- Handles:
-  - Session creation
-  - SDP relay
-  - ICE candidate exchange
 
-### Networking
-- **STUN servers** for NAT traversal
-- **TURN servers** as fallback relay
+  * **Runtime**: Node.js
+  * **WebSocket**: `socket.io` (Custom implementation)
+  * **Security**: `crypto` (SHA-256 for IP hashing), `nanoid` (Session ID generation)
+  * **Server**: Native Node.js `http` module (Lightweight, no Express overhead)
 
----
+##  Technical Architecture
 
-## 🖼️ UI Overview
+### Connection Flow
 
-**Main Panels:**
-- Send Files
-- Transfer Status (Upload / Download progress)
-- Receive Files
-- Activity Log
+1.  **Initiator** creates a room on the Signaling Server.
+2.  Server generates a unique **Session ID** (using `nanoid`).
+3.  **Receiver** joins via the link or QR code.
+4.  Peers exchange SDP offers/answers and ICE candidates via the Signaling Server (Socket.io).
+5.  **WebRTC Connection** is established (STUN server: `stunprotocol.org`).
+6.  Files are chunked and sent directly over the `RTCDataChannel`.
 
-Features:
-- Drag & drop file selection
-- Real-time progress indicators
-- Clear send/receive separation
+### Rate Limiting Logic
 
----
+The backend implements a sliding window rate limiter:
 
-## 🔐 Security Considerations
+  * Limits requests based on hashed IP addresses.
+  * Blocks abusive connections that exceed the request threshold within a 2-minute window.
+  * Automatically cleans up old IP hash data every hour.
 
-- No file storage on server
-- End-to-end encryption
-- One-time session IDs
-- Short-lived signaling connections
-- Server never accesses file contents
+##  Installation & Setup
 
----
+### Prerequisites
 
-## 📄 License
+  * Node.js (v16 or higher recommended)
+  * npm or yarn
 
-This project is open-source and intended for educational and experimental use.
+### 1\. Clone the Repository
 
----
+```bash
+git clone https://github.com/your-username/p2p-file-sharing.git
+cd p2p-file-sharing
+```
 
-## 🤝 Contributions
+### 2\. Backend Setup
 
-Contributions, feature requests, and improvements are welcome!  
-Feel free to fork the project and submit a pull request.
+Navigate to the backend folder and install dependencies:
 
----
+```bash
+cd backend
+npm install
+```
 
-## 📬 Contact
+Start the Signaling Server:
 
-For questions or suggestions, please open an issue or reach out via the repository.
+```bash
+npm start
+# Server runs on http://localhost:8080
+```
 
----
+### 3\. Frontend Setup
 
-🚀 **Fast. Private. Serverless.**
+Open a new terminal, navigate to the frontend folder, and install dependencies:
+
+```bash
+cd frontend
+npm install
+```
+
+Start the Development Server:
+
+```bash
+npm run dev
+# App runs on http://localhost:5173
+```
+
+## 🖥️ Usage
+
+1.  Open the application in your browser.
+2.  **Sender**: The home screen will generate a unique link and QR code. Share this with the receiver.
+3.  **Receiver**: Scan the QR code or open the link.
+4.  Once connected, the UI will transition to the **File Transfer** screen.
+5.  Drag and drop files to send them instantly.
+
+##  Project Structure
+
+```
+├── backend/
+│   ├── routes/
+│   │   └── websocket.js    # Socket.io logic, Rate limiting, Room management
+│   ├── server.js           # Entry point, HTTP server creation
+│   └── package.json
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── SessionCreate.jsx  # Landing page, QR generation
+│   │   │   ├── FileTransfer.jsx   # File sending/receiving UI
+│   │   │   └── P2PNetwork.jsx     # Background network visualization
+│   │   ├── webrtc.js              # WebRTC configuration & STUN servers
+│   │   ├── App.jsx                # Routing logic
+│   │   └── main.jsx
+│   └── package.json
+└── README.md
+```
