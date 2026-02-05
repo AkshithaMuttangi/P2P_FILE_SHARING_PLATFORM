@@ -59,8 +59,8 @@ The backend implements a sliding window rate limiter:
 ### 1\. Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/p2p-file-sharing.git
-cd p2p-file-sharing
+git clone https://github.com/AkshithaMuttangi/P2P_FILE_SHARING_PLATFORM.git
+cd P2P_FILE_SHARING_PLATFORM
 ```
 
 ### 2\. Backend Setup
@@ -95,7 +95,7 @@ npm run dev
 # App runs on http://localhost:5173
 ```
 
-## 🖥️ Usage
+##  Usage
 
 1.  Open the application in your browser.
 2.  **Sender**: The home screen will generate a unique link and QR code. Share this with the receiver.
@@ -115,9 +115,10 @@ npm run dev
 ├── frontend/
 │   ├── src/
 │   │   ├── pages/
-│   │   │   ├── SessionCreate.jsx  # Landing page, QR generation
-│   │   │   ├── FileTransfer.jsx   # File sending/receiving UI
-│   │   │   └── P2PNetwork.jsx     # Background network visualization
+│   │   │   ├── FileTransfer.jsx   # File sending/receiving
+│   │   │   ├── LoadingPage.jsx    # Receiver connecting 
+│   │   │   ├── P2PNetwork.jsx     # Background network visualization
+│   │   │   └── SessionCreate.jsx  # Session creation
 │   │   ├── webrtc.js              # WebRTC configuration & STUN servers
 │   │   ├── App.jsx                # Routing logic
 │   │   └── main.jsx
