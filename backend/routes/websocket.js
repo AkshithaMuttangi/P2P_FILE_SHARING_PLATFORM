@@ -1,11 +1,55 @@
 import { Server } from "socket.io";
 import { customAlphabet } from "nanoid";
+import crypto from "crypto";
 
 const nanoid = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 15);
 
 function generateSessionId() {
     return nanoid();
 }
+let today = new Date();
+
+function getDailySalt(date = new Date()) {
+    const day = date.toISOString().slice(0, 10); // YYYY-MM-DD
+    return day;
+}
+
+function hashIp(ip, salt) {
+    return crypto.createHash("sha256").update(ip + getDailySalt()).digest("hex");
+}
+
+
+
+const iphashmap = new Map();
+
+function ratelimit(iphash) {    //rate limit
+    const now = Date.now();
+    const window = 2 * 60 * 1000;
+    const MAX_REQUESTS =10;
+
+    let queue = iphashmap.get(iphash) || [];
+
+    while (queue.length && now - queue[0] > window) {
+        queue.shift();
+    }
+    queue.push(now);
+    iphashmap.set(iphash, queue);
+
+    return queue.length > MAX_REQUESTS;
+
+}
+
+setInterval(() => {   //memory cleanup
+    const now = Date.now();
+    const RATE_LIMIT_WINDOW = 10 * 60 * 1000;
+
+    for (const [ip, timestamps] of ipRequests) {
+        if (now - timestamps[timestamps.length - 1] > RATE_LIMIT_WINDOW) {
+            ipRequests.delete(ip);
+        }
+    }
+}, 60 * 60 * 1000);
+
 
 export function startSocket(server) {
     const io = new Server(server, {
@@ -24,6 +68,16 @@ export function startSocket(server) {
     io.on("connection", (socket) => {
 
         console.log("socket connected:", socket.id);
+        // console.log(
+        //     JSON.stringify(socket.handshake, null, 2)
+        // );
+
+        socket.iphash = hashIp(socket.handshake.headers["x-forwarded-for"]?.split(",")[0] || socket.handshake.address)
+        if (ratelimit(socket.iphash)) {
+            socket.emit("rate limited")
+            socket.disconnect(true);
+            return;
+        }
 
         socket.on("createroom", (data) => {
             const roomid = generateSessionId();
@@ -60,7 +114,7 @@ export function startSocket(server) {
             });
         });
 
-        socket.on("getready",({roomid})=>{
+        socket.on("getready", ({ roomid }) => {
             socket.to(roomid).emit("getready");
         })
 
@@ -68,8 +122,8 @@ export function startSocket(server) {
             socket.to(roomid).emit("sdp-offer", { sdpoffer });
             console.log("Relaying Offer for room:", roomid);
         });
-        
-        socket.on("sdp-answer", ({ roomid,sdpanswer }) => {
+
+        socket.on("sdp-answer", ({ roomid, sdpanswer }) => {
             socket.to(socket.roomId).emit("sdp-answer", { sdpanswer });
             console.log("Relaying Answer for room:", roomid);
         });

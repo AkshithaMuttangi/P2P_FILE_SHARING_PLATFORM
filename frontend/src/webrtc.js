@@ -4,8 +4,16 @@ export const socket = io("http://localhost:8080", {
   path: "/ws",
 });
 
+socket.on("rate limited", ()=>{
+  console.log("aapura BABUU ENNI SARLU RELOAD CHESTHAVUUUU")
+});
+
 export const pc = new RTCPeerConnection({
-  iceServers: [],
+  iceServers: [
+    // { urls: "stun:stun.l.google.com:19302" },
+    // { urls: "stun:stun.cloudflare.com:3478" },
+    { urls: "stun:stunserver2025.stunprotocol.org:3478" }
+  ]
 });
 
 export let dc = null;
