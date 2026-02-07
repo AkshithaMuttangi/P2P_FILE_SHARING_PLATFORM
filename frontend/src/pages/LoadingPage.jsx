@@ -29,7 +29,7 @@ const LoadingPage = () => {
       setDC(event.channel);
 
       dc.onopen = async () => {
-        await setpair;
+        await setpair();
         const localPublicKey = await setPublicKey();
         dc.send(
           JSON.stringify({
@@ -46,7 +46,7 @@ const LoadingPage = () => {
       dc.onmessage = async (event) => {
         const message = event.data;
         const parsedMessage = JSON.parse(message);
-        if (parsedMessage.type === "public-key ") {
+        if (parsedMessage.type === "public-key") {
           await setsharedpublicKey(new Uint8Array(parsedMessage.key));
           await setSessionKey();
           navigate(`/transfer`);

@@ -200,11 +200,10 @@ const FileTransfer = () => {
         }
       }
       const parsedData = JSON.parse(e.data);
-      const decryptedData = await decryptChunk(
-        sessionKey,
-        parsedData.iv,
-        parsedData.data,
-      );
+      const iv = new Uint8Array(parsedData.iv);
+      const encryptedData = new Uint8Array(parsedData.data).buffer;
+
+      const decryptedData = await decryptChunk(sessionKey, iv, encryptedData);
       receiveBufferRef.current.push(decryptedData);
 
       receivedSizeRef.current += decryptedData.byteLength;

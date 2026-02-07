@@ -42,10 +42,10 @@ const SessionCreate = () => {
       });
       setDC(channel);
       // channel.onopen = () => console.log("Datachannel opened");
-      dc.onopen = async () => {
-        await setpair;
+      channel.onopen = async () => {
+        await setpair();
         const localPublicKey = await setPublicKey();
-        dc.send(
+        channel.send(
           JSON.stringify({
             type: "public-key",
             key: Array.from(localPublicKey),
@@ -57,10 +57,10 @@ const SessionCreate = () => {
         // await setsharedpublicKey();
         // await setSessionKey();
       };
-      dc.onmessage = async (event) => {
+      channel.onmessage = async (event) => {
         const message = event.data;
         const parsedMessage = JSON.parse(message);
-        if (parsedMessage.type === "public-key ") {
+        if (parsedMessage.type === "public-key") {
           await setsharedpublicKey(new Uint8Array(parsedMessage.key));
           await setSessionKey();
           navigate(`/transfer`);
