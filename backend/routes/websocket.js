@@ -26,7 +26,7 @@ const iphashmap = new Map();
 function ratelimit(iphash) {    //rate limit
     const now = Date.now();
     const window = 2 * 60 * 1000;
-    const MAX_REQUESTS = 10;
+    const MAX_REQUESTS = 50;
 
     let queue = iphashmap.get(iphash) || [];
 

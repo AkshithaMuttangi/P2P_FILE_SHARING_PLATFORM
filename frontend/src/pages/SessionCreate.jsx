@@ -94,6 +94,7 @@ const SessionCreate = () => {
       handleconnect();
     }
 
+    socket.on("connect", handleconnect);
     socket.on("connected&url", handleurl);
     socket.on("peerconnected", handlepeerconnected);
     socket.on("sdp-answer", handlesdpanswer);
