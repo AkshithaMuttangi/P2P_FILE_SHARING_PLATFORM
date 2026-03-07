@@ -173,16 +173,25 @@
   gap: 20px;
   border-left: 1px solid rgba(255, 255, 255, 0.05);
   background: rgba(16, 24, 40, 0.2);
+  
+  /* ADD THESE 3 LINES */
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden; /* Prevents the whole right side from accidentally shifting */
 }
 
 .panel-section {
   display: flex;
   flex-direction: column;
+  /* ADD THIS LINE */
+  flex-shrink: 0; /* Prevents Active Transfers from squishing when logs grow */
 }
 
 .panel-section.flex-grow {
   flex-grow: 1;
   min-height: 0;
+  /* ADD THIS LINE */
+  flex-shrink: 1; /* Allows Activity Log to size dynamically */
 }
 
 .section-title {
