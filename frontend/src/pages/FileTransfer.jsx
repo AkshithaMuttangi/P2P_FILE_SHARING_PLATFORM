@@ -16,8 +16,11 @@ const FileTransfer = () => {
   ]);
 
   const fileInputRef = useRef(null);
-  const logEndRef = useRef(null);
-  const ActTransRef = useRef(null);
+  const logContainerRef = useRef(null);
+  const transferListRef = useRef(null);
+  // const logEndRef = useRef(null);
+  // const ActTransRef = useRef(null);
+  
 
   const chunkSize = 16384;
   const MAX_BUFFERED_AMOUNT = 8 * 1024 * 1024;
@@ -76,24 +79,52 @@ const FileTransfer = () => {
     return () => window.removeEventListener("beforeunload", handleUnload);
   }, []);
 
+  // Replace your current connection check with this:
   useEffect(() => {
     if (!dc) {
       navigate(`/`);
       return;
     }
-    if (dc.readyState === "open") {
-      setConnectionStatus("connected");
-    } else {
-      setConnectionStatus("retrying");
-    }
-  }, [dc, dc?.readyState, navigate]);
 
-  // Autoscroll logic
+    const handleStateChange = () => {
+      if (dc.readyState === "open") {
+        setConnectionStatus("connected");
+      } else {
+        setConnectionStatus("retrying");
+      }
+    };
+
+    dc.addEventListener("open", handleStateChange);
+    dc.addEventListener("close", handleStateChange);
+    dc.addEventListener("error", handleStateChange);
+
+    handleStateChange();
+
+    return () => {
+      if (dc) {
+        dc.removeEventListener("open", handleStateChange);
+        dc.removeEventListener("close", handleStateChange);
+        dc.removeEventListener("error", handleStateChange);
+      }
+    };
+  }, [dc, navigate]);
+
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTo({
+        top: logContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [logs]);
+
   useEffect(() => {
-    ActTransRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (transferListRef.current) {
+      transferListRef.current.scrollTo({
+        top: transferListRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    }
   }, [activeTransfers.length]);
 
 
@@ -160,9 +191,9 @@ const FileTransfer = () => {
         }
       }
 
-      const parsedData = JSON.parse(e.data);
-      const iv = new Uint8Array(parsedData.iv);
-      const encryptedData = new Uint8Array(parsedData.data).buffer;
+      const buffer = new Uint8Array(e.data); 
+      const iv = buffer.slice(0, 12); 
+      const encryptedData = buffer.slice(12).buffer;
 
       const decryptedData = await decryptChunk(sessionKey, iv, encryptedData);
       receiveBufferRef.current.push(decryptedData);
@@ -218,13 +249,14 @@ const FileTransfer = () => {
       const buffer = await slice.arrayBuffer();
       const { iv, data } = await encryptChunk(sessionKey, buffer);
 
-      dc.send(
-        JSON.stringify({
-          type: "file-chunk",
-          iv: Array.from(iv),
-          data: Array.from(new Uint8Array(data)),
-        })
-      );
+      const encryptedBytes = new Uint8Array(data);
+
+      const combinedPayload = new Uint8Array(iv.length + encryptedBytes.length); //converted into unit8 to reduce size than a json 
+
+      combinedPayload.set(iv, 0);
+      combinedPayload.set(encryptedBytes, iv.length);
+
+      dc.send(combinedPayload.buffer);
 
       offset += buffer.byteLength;
       const percent = Math.floor((offset / file.size) * 100);
@@ -339,7 +371,7 @@ const FileTransfer = () => {
             {/* SECTION: ACTIVE TRANSFERS */}
             <div className="panel-section">
               <h4 className="section-title">Active Transfers</h4>
-              <div className="transfer-list">
+              <div className="transfer-list" ref={transferListRef}>
                 {activeTransfers.length === 0 ? (
                   <div className="empty-state">No active transfers</div>
                 ) : (
@@ -400,21 +432,19 @@ const FileTransfer = () => {
                     );
                   })
                 )}
-                <div ref={ActTransRef} />
               </div>
             </div>
 
             {/* SECTION: ACTIVITY LOG */}
             <div className="panel-section flex-grow">
               <h4 className="section-title">Activity Log</h4>
-              <div className="log-container">
+              <div className="log-container" ref={logContainerRef}>
                 {logs.map((log, index) => (
                   <div key={index} className="log-entry">
                     <span className="log-time">[{log.time}]</span>
                     <span className="log-msg">{log.message}</span>
                   </div>
                 ))}
-                <div ref={logEndRef} />
               </div>
             </div>
           </div>
