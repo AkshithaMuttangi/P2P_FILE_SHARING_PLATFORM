@@ -14,11 +14,11 @@ We built Velosync to simplify file sharing while addressing growing concerns aro
 https://velosyncp2p.vercel.app/
 
 ## Screenshots
-![Home Screen / Session Generation](readmescreenshots/Screenshot 2026-03-08 215738.png)
+![Home Screen / Session Generation](readmescreenshots/Screenshot%202026-03-08%20215738.png)
 
 *Caption: Generating a secure session ID and QR code.*
 
-![File Transfer Interface](readmescreenshots\Screenshot 2026-03-08 215914.png)
+![File Transfer Interface](readmescreenshots/Screenshot%202026-03-08%20215914.png)
 
 *Caption: Drag-and-drop secure file transfer.*
 
