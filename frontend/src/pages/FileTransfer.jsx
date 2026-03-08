@@ -336,7 +336,7 @@ const FileTransfer = () => {
               setActiveTransfers([]);
               setLogs([]);
               setConnectionStatus("retrying");
-              navigate("/");
+              window.location.href = "/";
             }}
           >
             Disconnect

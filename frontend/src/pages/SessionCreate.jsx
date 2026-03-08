@@ -79,14 +79,8 @@ const SessionCreate = () => {
       // socket.emit("getready", { roomid });
     };
 
-    pc.onicecandidate = (e) => {
-      if (e.candidate === null && roomid) {
-        socket.emit("sdp-offer", {
-          roomid,
-          sdpoffer: pc.localDescription,
-        });
-      }
-    };
+
+    
 
     if (socket.connected && !roomid) {
       handleconnect();
