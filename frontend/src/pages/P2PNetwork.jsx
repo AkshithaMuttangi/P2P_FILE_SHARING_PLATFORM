@@ -18,7 +18,7 @@ const P2PNetwork = () => {
 
     // --- CONFIG ---
     const CFG = {
-      NODE_COUNT: 135,
+      NODE_COUNT: 0,
       NODE_RADIUS_MIN: 1.8,
       NODE_RADIUS_MAX: 4.2,
       CONNECT_DIST: 140,
@@ -224,6 +224,16 @@ const P2PNetwork = () => {
       DPR = Math.min(window.devicePixelRatio || 1, 2);
       width = window.innerWidth;
       height = window.innerHeight;
+      const BASE_AREA = 1920 * 1080;
+      const BASE_NODE_COUNT = 170;
+
+      CFG.NODE_COUNT = Math.round(
+        (width * height / BASE_AREA) * BASE_NODE_COUNT
+      );
+
+      CFG.NODE_COUNT = clamp(CFG.NODE_COUNT, 40, 200);
+
+
       canvas.width = Math.round(width * DPR);
       canvas.height = Math.round(height * DPR);
       canvas.style.width = width + 'px';
@@ -425,6 +435,9 @@ const P2PNetwork = () => {
       resize();
       if (resizeTimeout) clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
+        transfers = [];          // clear old transfers
+        setActiveCount(0);
+        initNodes();
         rebuildAdjacency();
       }, 220);
     };
@@ -457,6 +470,9 @@ const P2PNetwork = () => {
       </div>
       <div className="hint">
         Click anywhere to spawn a transfer • Transfers travel only along network lines
+      </div>
+      <div className="copyright">
+        © 2026 VeloSync · Speed. Secure. Decentralized
       </div>
     </div>
   );

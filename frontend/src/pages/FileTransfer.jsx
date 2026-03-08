@@ -146,6 +146,8 @@ const FileTransfer = () => {
   useEffect(() => {
     if (!dc) return;
 
+    dc.binaryType = "arraybuffer";
+
     dc.onmessage = async (e) => {
       if (typeof e.data === "string") {
         const msg = JSON.parse(e.data);
@@ -336,7 +338,7 @@ const FileTransfer = () => {
               setActiveTransfers([]);
               setLogs([]);
               setConnectionStatus("retrying");
-              navigate("/");
+              window.location.href = "/";
             }}
           >
             Disconnect

@@ -1,4 +1,4 @@
-/* P2PNetwork.css */
+
 
 /* Note: In a React app, you might want to remove the 'html, body' 
   selectors if this component doesn't take up the full page, 
@@ -12,11 +12,14 @@
 }
 
 .p2p-container {
-  position: relative;
+  position: fixed;  /* Changed from relative */
+  inset: 0;         /* Locks it to all 4 corners of the screen */
   width: 100vw;
   height: 100vh;
   margin: 0;
   overflow: hidden;
+  z-index: 0;       /* Forces it to the absolute background */
+  
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -53,11 +56,25 @@ canvas.p2p-canvas {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  bottom: 18px;
+  bottom: 30px;
   color: rgba(255, 255, 255, 0.65);
   font-size: 13px;
   background: rgba(0, 0, 0, 0.18);
   padding: 8px 12px;
+  border-radius: 999px;
+  pointer-events: none;
+  white-space: nowrap;
+  user-select: none;
+}
+.copyright {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 10px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.18);
+  padding: 6px 12px;
   border-radius: 999px;
   pointer-events: none;
   white-space: nowrap;

@@ -23,7 +23,7 @@ function hashIp(ip, salt) {
 
 const iphashmap = new Map();
 
-function ratelimit(iphash) {    //rate limit
+function ratelimit(iphash, socket) {    //rate limit
     const now = Date.now();
     const window = 2 * 60 * 1000;
     const MAX_REQUESTS = 50;
@@ -86,7 +86,7 @@ export function startSocket(server) {
         //     action: "SOCKET_CONNECTED"
         // });
 
-        if (ratelimit(socket.iphash)) {
+        if (ratelimit(socket.iphash, socket)) {
             socket.emit("rate limited")
             socket.disconnect(true);
             return;
@@ -175,9 +175,9 @@ export function startSocket(server) {
             console.log("Relaying Answer for room:", roomid);
         });
 
-        // socket.on("ice-candidate", ({ roomid, candidate }) => {
-        //     socket.to(roomid).emit("ice-candidate", { candidate });
-        // });
+        socket.on("ice-candidate", ({ roomid, candidate }) => {
+            socket.to(roomid).emit("ice-candidate", { candidate });
+        });
 
         socket.on("disconnect", (reason) => {
             console.log("WS disconnected:", reason);

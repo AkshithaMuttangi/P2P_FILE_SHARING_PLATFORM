@@ -11,11 +11,16 @@ socket.on("rate limited", ()=>{
   console.log("aapura BABUU ENNI SARLU RELOAD CHESTHAVUUUU")
 });
 
-export const pc = new RTCPeerConnection({
+export let pc = new RTCPeerConnection({
   iceServers: [
     // { urls: "stun:stun.l.google.com:19302" },
     // { urls: "stun:stun.cloudflare.com:3478" },
-    { urls: "stun:stunserver2025.stunprotocol.org:3478" }
+    { urls: "stun:stunserver2025.stunprotocol.org:3478" },
+    { 
+      urls: "turn:openrelay.metered.ca:80", 
+      username: "openrelayproject", 
+      credential: "openrelayproject" 
+    }
   ]
 });
 
@@ -139,9 +144,20 @@ export function cleanupWebRTC() {
     if (pc) {
       pc.onicecandidate = null;
       pc.ondatachannel = null;
-      // pc.close();
+      pc.close();
     }
   } catch {}
 
   dc = null;
+
+  pc = new RTCPeerConnection({
+    iceServers: [
+      { urls: "stun:stunserver2025.stunprotocol.org:3478" },
+      { 
+        urls: "turn:openrelay.metered.ca:80", 
+        username: "openrelayproject", 
+        credential: "openrelayproject" 
+      }
+    ]
+  });
 }
