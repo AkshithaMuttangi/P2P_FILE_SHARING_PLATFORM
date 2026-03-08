@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
-// import "./LoadingPage.css";
+
 // import { io } from "socket.io-client";
 import { socket, pc, dc, setDC } from "../webrtc";
 import "../Styles/LoadingPage.css";

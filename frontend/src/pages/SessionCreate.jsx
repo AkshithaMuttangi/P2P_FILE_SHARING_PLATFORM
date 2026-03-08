@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../Styles/SessionCreate.css";
 import dummyQR from "../assets/dummyqr200x200.png";
+import Header from "../components/Header";
 import { QRCodeSVG } from "qrcode.react";
 // import { io } from "socket.io-client";
 import { socket, pc, dc } from "../webrtc";
@@ -183,6 +184,8 @@ const SessionCreate = () => {
   const [expanded, setExpanded] = useState(false);
 
   return (
+    <>
+    <Header />
     <div className="session-page-wrapper">
       <div className="session-card">
         <div className="glow-effect left"></div>
@@ -245,6 +248,7 @@ const SessionCreate = () => {
         </div>
       </div>
     </div>
+      </>
   );
 };
 
