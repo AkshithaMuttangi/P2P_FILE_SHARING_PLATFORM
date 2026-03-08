@@ -1,9 +1,5 @@
 # VELOSYNC – Speed. Secure. Decentralized.
 
-## Team Members
-* **Zenith Reddy Pathakota** - Full-Stack Integration Engineer
-* **Akshitha Muttangi** - Project Architect & WebRTC Lead
-
 ## Brief Description
 **VELOSYNC** is a fast, highly secure, and decentralized peer-to-peer (P2P) file-sharing application. It establishes a direct connection between users using **WebRTC**, ensuring that files are transferred directly from device to device without ever being stored on a central server. All transfers are protected with robust End-to-End Encryption.
 
@@ -16,19 +12,31 @@ https://velosyncp2p.vercel.app/
 ## Screenshots
 ![Home Screen / Session Generation](readmescreenshots/Screenshot%202026-03-08%20215738.png)
 
-*Caption: Generating a secure session ID and QR code.*
+*Generating a secure session ID and QR code.*
 
 ![File Transfer Interface](readmescreenshots/Screenshot%202026-03-08%20215914.png)
 
-*Caption: Drag-and-drop secure file transfer.*
+*Drag-and-drop secure file transfer.*
 
+![Connection establishment](readmescreenshots/Screenshot%202026-03-08%20220017.png)
+
+*Connection establishment.*
+
+
+![How the project works](readmescreenshots/Screenshot%202026-03-08%20222449.png)
+
+*How the project works*
+
+![Privacy and Security](readmescreenshots/Screenshot%202026-03-08%20221501.png)
+
+*Privacy and Security statements*
 
 ## Main Features Implemented
 
 * **Direct P2P Transfer**: Uses WebRTC DataChannels for peer-to-peer file transfer. Data goes directly between users, bypassing any central servers.
 * **End-to-End Encryption (E2EE)**: Secures file transfers using the Web Crypto API. Generates ECDH (P-256 curve) key pairs for secure key exchange and derives AES-GCM (256-bit) session keys to encrypt payloads.
 * **Secure Signaling & Auditing**:
-    * **Rate Limiting**: Custom IP-based sliding window rate limiter (max 20 requests/2 mins) on the signaling server to prevent abuse.
+    * **Rate Limiting**: Custom IP-based sliding window rate limiter (max 20 requests/2 mins on development and max 50 requests/2 mins on production) on the signaling server to prevent abuse.
     * **IP Hashing**: User IP addresses are hashed securely using SHA-256 with a daily rotating salt for privacy.
     * **Audit Logging**: Comprehensive server-side logging that records socket events, room creation/joining, and rate limit violations. Logs are automatically rotated and purged every 6 hours to save disk space.
 * **Easy Session Sharing**:
@@ -110,3 +118,8 @@ Start the Development Server:
 ```bash
 npm run dev
 # App runs on http://localhost:5173
+```
+
+## Team Members
+* **Zenith Reddy Pathakota**
+* **Akshitha Muttangi**
