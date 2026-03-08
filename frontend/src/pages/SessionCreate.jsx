@@ -69,6 +69,11 @@ const SessionCreate = () => {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
       console.log("Offer created");
+
+      socket.emit("sdp-offer", {
+          roomid: roomid,
+          sdpoffer: pc.localDescription,
+      });
     };
 
     const handlesdpanswer = async (data) => {
@@ -80,13 +85,25 @@ const SessionCreate = () => {
     };
 
     pc.onicecandidate = (e) => {
-      if (e.candidate === null && roomid) {
-        socket.emit("sdp-offer", {
+      if (e.candidate && roomid) {
+        socket.emit("ice-candidate", {
           roomid,
-          sdpoffer: pc.localDescription,
+          candidate: e.candidate,
         });
       }
     };
+
+    const handleIceCandidate = async ({ candidate }) => {
+      if (candidate) {
+         try {
+           await pc.addIceCandidate(new RTCIceCandidate(candidate));
+         } catch (error) {
+           console.error("Error adding ice candidate", error);
+         }
+      }
+    };
+
+    socket.on("ice-candidate", handleIceCandidate);
 
     if (socket.connected && !roomid) {
       handleconnect();
@@ -143,6 +160,7 @@ const SessionCreate = () => {
       socket.off("connected&url", handleurl);
       socket.off("peerconnected", handlepeerconnected);
       socket.off("sdp-answer", handlesdpanswer);
+      socket.off("ice-candidate", handleIceCandidate);
       pc.onicecandidate = null;
     };
   }, [roomid]);
@@ -185,8 +203,8 @@ const SessionCreate = () => {
   return (
     <div className="session-page-wrapper">
       <div className="session-card">
-        <div className="glow-effect left"></div>
-        <div className="glow-effect right"></div>
+        {/* <div className="glow-effect left"></div>
+        <div className="glow-effect right"></div> */}
 
         <div className="connection-visual"></div>
 
