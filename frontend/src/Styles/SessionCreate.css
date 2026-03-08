@@ -18,7 +18,7 @@ body {
   border-radius: 16px;
   padding: 30px;
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-  color: white;
+  color: rgb(255, 255, 255);
   z-index: 10;
 }
 
@@ -89,9 +89,9 @@ body {
 
 .title {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   font-weight: 600;
-  background: linear-gradient(to right, #fff, #cbd5e1);
+  background: linear-gradient(to right, #fff, #ffffff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }

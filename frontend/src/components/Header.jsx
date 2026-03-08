@@ -22,7 +22,7 @@ const Header = () => {
           <Link to="/" className={isActive("/")}>Send</Link>
           <Link to="/how-it-works" className={isActive("/how-it-works")}>How it Works</Link>
           <Link to="/privacy" className={isActive("/privacy")}>Privacy</Link>
-          <Link to="/about" className={isActive("/about")}>About</Link>
+          <Link to="/about" className={isActive("/about")}>About Us</Link>
         </nav>
 
         {/* Right: Action Button */}
