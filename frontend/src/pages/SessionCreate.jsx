@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../Styles/SessionCreate.css";
-import dummyQR from "../assets/dummyqr200x200.png";
 import Header from "../components/Header";
 import { QRCodeSVG } from "qrcode.react";
 // import { io } from "socket.io-client";
@@ -188,8 +187,8 @@ const SessionCreate = () => {
     <Header />
     <div className="session-page-wrapper">
       <div className="session-card">
-        <div className="glow-effect left"></div>
-        <div className="glow-effect right"></div>
+        {/* <div className="glow-effect left"></div>
+        <div className="glow-effect right"></div> */}
 
         <div className="connection-visual"></div>
 
@@ -228,7 +227,6 @@ const SessionCreate = () => {
               <MailIcon /> <span>Mail</span>
             </button>
             
-            {/* --- Modified Copy Button --- */}
             <button 
               className={`share-btn ${isCopied ? "copied" : ""}`} 
               onClick={copyToClipboard}
@@ -236,7 +234,6 @@ const SessionCreate = () => {
               {isCopied ? <CheckIcon /> : <CopyIcon />}
               <span>{isCopied ? "Copied" : "Copy"}</span>
             </button>
-            {/* ---------------------------- */}
           </div>
 
           <div className="card-footer">

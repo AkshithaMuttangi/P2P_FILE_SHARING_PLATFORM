@@ -11,9 +11,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 function App() {
   return (
     <BrowserRouter>
-      {/* P2PNetwork is outside Routes to ensure it remains 
-         rendered as the persistent background across all pages 
-      */}
+
       <P2PNetwork />
 
       <Routes>
@@ -21,8 +19,8 @@ function App() {
         <Route path="/transfer" element={<FileTransfer />} />
         <Route path="/:sessid" element={<LoadingPage />} />
         <Route path="/how-it-works" element={<HowItWorks />} />
-<Route path="/privacy" element={<Privacy />} />
-<Route path="/about" element={<About />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/about" element={<About />} />
         {/* <Route path="/sessid" element={<SessionCreate />} /> */}
       </Routes>
     </BrowserRouter>
