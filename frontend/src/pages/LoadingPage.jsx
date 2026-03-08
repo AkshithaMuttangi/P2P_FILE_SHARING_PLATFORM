@@ -74,6 +74,12 @@ const LoadingPage = () => {
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
         console.log("Answer created and set local");
+
+        socket.emit("sdp-answer", {
+          roomid: sessid,
+          sdpanswer: pc.localDescription,
+        });
+        setStatusText("Sending handshake...");
       }
     };
 
@@ -90,14 +96,25 @@ const LoadingPage = () => {
     };
 
     pc.onicecandidate = (e) => {
-      if (e.candidate === null) {
-        socket.emit("sdp-answer", {
+      if (e.candidate) {
+        socket.emit("ice-candidate", {
           roomid: sessid,
-          sdpanswer: pc.localDescription,
+          candidate: e.candidate,
         });
-        setStatusText("Sending handshake...");
       }
     };
+
+    const handleIceCandidate = async ({ candidate }) => {
+      if (candidate) {
+         try {
+           await pc.addIceCandidate(new RTCIceCandidate(candidate));
+         } catch (error) {
+           console.error("Error adding ice candidate", error);
+         }
+      }
+    };
+    
+    socket.on("ice-candidate", handleIceCandidate);
 
     // socket.on("connect", () => {});
     if (socket.connected) {

@@ -175,9 +175,9 @@ export function startSocket(server) {
             console.log("Relaying Answer for room:", roomid);
         });
 
-        // socket.on("ice-candidate", ({ roomid, candidate }) => {
-        //     socket.to(roomid).emit("ice-candidate", { candidate });
-        // });
+        socket.on("ice-candidate", ({ roomid, candidate }) => {
+            socket.to(roomid).emit("ice-candidate", { candidate });
+        });
 
         socket.on("disconnect", (reason) => {
             console.log("WS disconnected:", reason);

@@ -12,7 +12,12 @@ export let pc = new RTCPeerConnection({
   iceServers: [
     // { urls: "stun:stun.l.google.com:19302" },
     // { urls: "stun:stun.cloudflare.com:3478" },
-    { urls: "stun:stunserver2025.stunprotocol.org:3478" }
+    { urls: "stun:stunserver2025.stunprotocol.org:3478" },
+    { 
+      urls: "turn:openrelay.metered.ca:80", 
+      username: "openrelayproject", 
+      credential: "openrelayproject" 
+    }
   ]
 });
 
