@@ -129,7 +129,7 @@ const LoadingPage = () => {
       socket.off("connect", handleconnect);
       socket.off("sdp-offer", handlesdpoffer);
 
-      // socket.off("ice-candidate", handleIceCandidate);
+      socket.off("ice-candidate", handleIceCandidate);
       pc.onicecandidate = null;
     };
   }, [sessid]);

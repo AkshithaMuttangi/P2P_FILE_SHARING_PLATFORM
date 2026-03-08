@@ -84,14 +84,7 @@ const SessionCreate = () => {
       // socket.emit("getready", { roomid });
     };
 
-    pc.onicecandidate = (e) => {
-      if (e.candidate && roomid) {
-        socket.emit("ice-candidate", {
-          roomid,
-          candidate: e.candidate,
-        });
-      }
-    };
+
 
     const handleIceCandidate = async ({ candidate }) => {
       if (candidate) {
